@@ -6,7 +6,7 @@ def connect(database, useremail, userpassword):
     except:
         return "connection error"
     time = str(datetime.datetime.now())
-    querry = f"INSERT INTO register VALUES({time}, {useremail}, {userpassword});"
+    querry = f"INSERT INTO {database} VALUES({time}, {useremail}, {userpassword});"
     try:
         with connection.cursor() as cursor:
             cursor.execute(querry)

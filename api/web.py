@@ -7,6 +7,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi import Form
+from login import login
+from connect import connect
 import uvicorn
 
 templates_home = Jinja2Templates(directory="../home")
@@ -40,13 +42,26 @@ async def register(request: Request):
 
 @app.post("/signup")
 async def signup(request: Request, username: str = Form(...), password: str = Form(...)):
-    # 이 부분을 DB로 전송
-    
+    await connect("register", username, password)
     return "signup Successful"
 
 @app.get("/login")
-async def login(request: Request):
-    return templates_login.TemplateResponse("index.html",{"request":request})
+async def signup(request: Request, username: str = Form(...),password: str = Form(...)):
+    if request.cookies.get("access_token"):
+        # access 토큰이 있는 경우
+        return templates_login.TemplateResponse("index.html",{"request":request})
+    if await login("login", username, password) == True:
+        return templates_login.TemplateResponse("index.html",{"request":request})
+    else:
+        return "login Failed"
+
+@app.post("/signin")
+async def signin(request: Request, username: str = Form(...), password: str = Form(...)):
+    import uuid
+    # await connect("login", username, password)
+    response = templates_login.TemplateResponse("login.html", {"request":request})
+    response.set_cookie(key="access_token", value=f"{uuid.uuid4()}", httponly=True)
+    return response
 
 @app.get("/logout")
 async def logout(request: Request):
