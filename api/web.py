@@ -29,6 +29,7 @@ templates_zoom = Jinja2Templates(directory="../djzoom")
 templates_reg = Jinja2Templates(directory="../register")
 templates_login = Jinja2Templates(directory="../login")
 templates_logout = Jinja2Templates(directory="../logout")
+templates_check = Jinja2Templates(directory="../check")
 
 visit_count = 0
 
