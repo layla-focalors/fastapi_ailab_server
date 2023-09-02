@@ -7,7 +7,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi import Form
-from login import login
+from loginsys import login
+from rank import rank
+from skills import skills
 from connect import connect
 import uvicorn
 
@@ -16,6 +18,8 @@ templates_zoom = Jinja2Templates(directory="../djzoom")
 templates_reg = Jinja2Templates(directory="../register")
 templates_login = Jinja2Templates(directory="../login")
 templates_logout = Jinja2Templates(directory="../logout")
+
+visit_count = 0
 
 app = FastAPI(docs_url="/docs", redoc_url=None)
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -62,6 +66,30 @@ async def signin(request: Request, username: str = Form(...), password: str = Fo
     response = templates_login.TemplateResponse("login.html", {"request":request})
     response.set_cookie(key="access_token", value=f"{uuid.uuid4()}", httponly=True)
     return response
+
+@app.get("/visitor")
+async def visitor(request: Request):
+    return visit_count
+
+@app.get("/ranking")
+async def ranking(request: Request):
+    df = rank()
+    return df
+
+@app.get("/ranking/{user}")
+async def ranking(request: Request, user: str):
+    df = rank(user)
+    return df
+
+@app.get("/skills/{user}")
+async def skills(request: Request, user: str):
+    df = skills(user)
+    return df
+
+@app.get("/contact/{user}")
+async def contact(request: Request, user: str):
+    url = contact(user)
+    return str(url)
 
 @app.get("/logout")
 async def logout(request: Request):
