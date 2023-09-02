@@ -1,0 +1,52 @@
+{
+    "server":{
+        "port": 8000,
+        "host": "localhost"
+    },
+    "room":{
+        "max": 99,
+        "min": 1,
+        "permission":{
+            "guest":{
+                "access": true,
+                "chat": true,
+                "upload": false,
+                "download": false,
+                "delete": false,
+                "rename": false,
+                "stream": false
+            },
+            "user":{
+                "access": true,
+                "chat": true,
+                "upload": true,
+                "download": true,
+                "delete": true,
+                "rename": true,
+                "stream": true
+            },
+            "admin":{
+                "access": true,
+                "chat": true,
+                "upload": true,
+                "download": true,
+                "delete": true,
+                "rename": true,
+                "stream": true,
+                "kick": true,
+                "ban": true
+            },
+            "custom_config":{
+                "access": true,
+                "chat": true,
+                "upload": true,
+                "download": true,
+                "delete": true,
+                "rename": true,
+                "stream": true,
+                "kick": true,
+                "ban": true
+            }
+        }
+    }
+}

@@ -9,9 +9,20 @@ from pydantic import BaseModel
 from fastapi import Form
 from loginsys import login
 from rank import rank
+from fastapi import Header
 from skills import skills
 from connect import connect
+from share import share_link
+from fastapi import Request, Response
 import uvicorn
+from pathlib import Path
+import json 
+from collections import OrderedDict
+data = OrderedDict()
+
+templates = Jinja2Templates(directory="templates")
+CHUNK_SIZE = 1024*1024
+video_path = Path("video.mp4")
 
 templates_home = Jinja2Templates(directory="../home")
 templates_zoom = Jinja2Templates(directory="../djzoom")
@@ -97,6 +108,33 @@ async def logout(request: Request):
     response = templates_logout.TemplateResponse("login.html", {"request":request, "msg":msg})
     response.delete_cookie(key="access_token")
     return response
+
+@app.get("/streaming/{video_id}")
+async def video_endpoint(range: str = Header(None)):
+    video_path = Path("video{videoid}.mp4")
+    start, end = range.replace("bytes=", "").split("-")
+    start = int(start)
+    end = int(end) if end else start + CHUNK_SIZE
+    with open(video_path, "rb") as video:
+        video.seek(start)
+        data = video.read(end - start)
+        filesize = str(video_path.stat().st_size)
+        headers = {
+            'Content-Range': f'bytes {str(start)}-{str(end)}/{filesize}',
+            'Accept-Ranges': 'bytes'
+        }
+        return Response(data, status_code=206, headers=headers, media_type="video/mp4")
+    
+@app.post("/share/{room_id}")
+async def share(request: Request, room_id: str = Form(...)):
+    await share_link(room_id)
+    return "share Successful : https://localhost:8000/room/{room_id}"
+
+@app.post("/setting")
+async def setting(request: Request, settings: str = Form(...), value: str = Form(...)):
+    data["key"] = settings
+    data["value"] = value
+    return json.dumps(data, ensure_ascii=False, indent="\t")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="localhost",port=8000)
